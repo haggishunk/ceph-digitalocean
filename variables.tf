@@ -27,10 +27,15 @@ variable "size" {
 variable "ssh_id" {
     # change this
     type = "string"
-    description = "SSH public key ID - MD5 hash works "
+    description = "SSH public key ID - MD5 hash works - `ssh-keygen -l -E md5 -f ~/.ssh/id_rsa`"
     default = "xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx"
 }
 
+variable "node_user" {
+    type = "string"
+    description = "User to provision on each ceph node"
+    default = "tentacle"
+}
 
 # GCP vars
 
