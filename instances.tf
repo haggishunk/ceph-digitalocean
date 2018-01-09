@@ -34,12 +34,16 @@ resource "digitalocean_droplet" "ceph" {
                         "chmod  600 /home/${var.node_user}/.ssh/authorized_keys",
                     ]
     }
+
+}
+
+resource "null_resource" "ssh-hostfile" {
+    depends_on              = ["digitalocean_droplet.ceph"]
  
     # Add hosts to admin node ssh config file
     provisioner "local-exec" {
          command            = "python3 addNodesConfig.py ${var.node_user}"
     }
-
 }
 
 output "ceph_node_names" {
