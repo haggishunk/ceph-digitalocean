@@ -31,6 +31,7 @@ variable "ssh_id" {
     default = "xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx"
 }
 
+
 # GCP vars
 
 variable "gcp_dns_zone" {
