@@ -45,6 +45,10 @@ output "ceph_node_names" {
     value                   = "Your ceph node names are:\n${join(",\n", digitalocean_droplet.ceph.*.name)}"
 }
 
-output "ceph_nodes" {
-    value                   = "Your ceph nodes are:\n${join(",\n", digitalocean_droplet.ceph.*.ipv4_address)}"
+output "ceph_nodes_pub" {
+    value                   = "\nYour ceph nodes' public IPs are:\n${join(",\n", digitalocean_droplet.ceph.*.ipv4_address)}"
+}
+
+output "ceph_nodes_pri" {
+    value                   = "\nYour ceph nodes' private IPs are:\n${join(",\n", digitalocean_droplet.ceph.*.ipv4_address_private)}"
 }
