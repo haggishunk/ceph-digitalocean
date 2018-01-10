@@ -7,7 +7,7 @@ resource "digitalocean_droplet" "ceph" {
     volume_ids              = ["${element(digitalocean_volume.ceph-vol.*.id, count.index)}"]
     backups                 = "False"
     ipv6                    = "False"
-    private_networking      = "True"
+    private_networking      = "False"
     ssh_keys                = ["${var.ssh_id}"]
 
 
