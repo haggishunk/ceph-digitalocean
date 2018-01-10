@@ -23,7 +23,7 @@ resource "digitalocean_droplet" "ceph" {
     # setup ssh access for admin node
     provisioner "remote-exec" {
         inline =    [   "apt-get -qq -y update",
-                        "apt-get -qq -y install python2",
+                        "apt-get -qq -y install python",
                         "apt-get -qq -y install ntp",
                         "apt-get -qq -y install openssh-server",
                         "useradd -d /home/${var.node_user} -m ${var.node_user}",
