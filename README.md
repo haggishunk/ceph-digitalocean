@@ -52,6 +52,8 @@ ssh ceph-1
 
 You are now complete with the `ceph-deploy` [preflight][] instructions and you can begin [storage cluster setup][].  Future developments to this module will implement these steps in Terraform automation.
 
+
+_NB:  Clean up any stale `Host` entries in your ssh config file from previous instance deployments, lest ceph-deploy try connecting to nonexistant machines._
 * * *
 
 [ceph]:                         http://ceph.com                                                                                 "http://ceph.com" 
