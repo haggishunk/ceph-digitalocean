@@ -36,21 +36,15 @@ resource "digitalocean_droplet" "ceph" {
                     ]
     }
 
-}
-
-resource "null_resource" "ssh-hostfile" {
-    depends_on              = ["digitalocean_droplet.ceph"]
- 
-    # Add hosts to admin node ssh config file
     provisioner "local-exec" {
-         command            = "python3 addNodesConfig.py ${var.node_user}"
+        command =   "echo '\nHost ${self.name}\n    HostName ${self.ipv4_address}\n    User ${var.node_user}' | tee -a ~/.ssh/config"
     }
 }
 
 output "ceph_node_names" {
-    value                   = "Your ceph node names are: ${join(", ", digitalocean_droplet.ceph.*.name)}"
+    value                   = "Your ceph node names are:\n${join(",\n", digitalocean_droplet.ceph.*.name)}"
 }
 
 output "ceph_nodes" {
-    value                   = "Your ceph nodes are: ${join(", ", digitalocean_droplet.ceph.*.ipv4_address)}"
+    value                   = "Your ceph nodes are:\n${join(",\n", digitalocean_droplet.ceph.*.ipv4_address)}"
 }
