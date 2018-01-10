@@ -1,5 +1,11 @@
 # DigitalOcean vars
 
+variable "image" {
+    type        = "string"
+    description = "Image name"
+    default     = "ubuntu-14-04-x64"
+}
+
 variable "instances" {
     type        = "string"
     description = "Number of droplets to deploy"

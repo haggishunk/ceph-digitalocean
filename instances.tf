@@ -1,5 +1,5 @@
 resource "digitalocean_droplet" "ceph" {
-    image                   = "ubuntu-16-04-x64"
+    image                   = "${var.image}"
     count                   = "${var.instances}"
     name                    = "${var.prefix}-${count.index+1}"
     region                  = "${var.do_region}"
