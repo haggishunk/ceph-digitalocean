@@ -1,6 +1,6 @@
 # Digital Ocean vars
 
-image       = "ubuntu-16-04-x64"
+image       = "ubuntu-14-04-x64"
 instances   = "3"
 prefix      = "ceph"
 do_region   = "sfo2"  # pick a region with volumes avail
