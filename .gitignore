@@ -4,3 +4,4 @@
 *.tfstate
 *.tfstate.backup
 *.info
+ceph_do_cluster
