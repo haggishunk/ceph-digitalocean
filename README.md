@@ -17,15 +17,15 @@ cd ceph-digitalocean
 
 Make changes to terraform config files
 
-> `terraform.tfvars`
+`terraform.tfvars`
 * `ssh_id:` change to your DigitalOcean SSH key md5 fingerprint
 * `instances:` change to desired number of nodes, min 3 _(optional)_
 * `do_region:` change to desired DigitalOcean instance region, select a region with [volume availability][] _(optional)_
 
-> `provider.tf`
+`provider.tf`
 * `token:` change file path to location of your DigitalOcean token string
 
-> `instances.tf`
+`instances.tf`
 * `connection - private_key:` ensure private key file matches fingerprint specified with `ssh_id` above
 
 Initialize
