@@ -7,7 +7,7 @@ resource "digitalocean_droplet" "ceph" {
     backups                 = "False"
     ipv6                    = "False"
     private_networking      = "True"
-    ssh_keys                = ["${chomp(file("~/.ssh/id_rsa.fgr"))}"]
+    ssh_keys                = ["${var.ssh_id}"]
 
 
     # remote connection key
