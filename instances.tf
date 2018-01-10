@@ -4,6 +4,7 @@ resource "digitalocean_droplet" "ceph" {
     name                    = "${var.prefix}-${count.index+1}"
     region                  = "${var.do_region}"
     size                    = "${var.size}"
+    volume_ids              = ["${element(digitalocean_volume.ceph-vol.*.id, count.index)}"]
     backups                 = "False"
     ipv6                    = "False"
     private_networking      = "True"
