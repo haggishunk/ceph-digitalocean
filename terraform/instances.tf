@@ -4,6 +4,7 @@
 ################
 
 resource "digitalocean_droplet" "ceph-admin" {
+#   depends_on              = ["${digitalocean_droplet.ceph}"]
     image                   = "${var.admin_image}"
     name                    = "ceph-admin"
     region                  = "${var.do_region}"
@@ -34,6 +35,15 @@ resource "digitalocean_droplet" "ceph-admin" {
                     ]
     }
 
+    provisioner "local-exec" {
+        command =   "echo '\nHost ${self.name}\n    HostName ${self.ipv4_address}\n    User ${var.admin_user}' | tee -a ~/.ssh/config"
+    }
+
+}
+
+resource "null_resource" "admin-config" {
+#   depends_on          = ["${digitalocean_droplet.ceph-admin}"]
+
     # remote ceph-admin connection key
     connection {
         type                = "ssh"
@@ -42,15 +52,14 @@ resource "digitalocean_droplet" "ceph-admin" {
     }
 
     # Update your remote VM
+    # Generate ssh key locally
+    # Append to authorized_keys for scp later
     provisioner "remote-exec" {
         inline =    [   "sudo apt-get -qq -y update",
                         "sudo apt-get -qq -y install ceph-deploy",
-                        "sudo ssh-keygen -t rsa -b 4096 -f /home/${var.admin_user}/.ssh/id_rsa -N ''",
+                        "ssh-keygen -t rsa -b 4096 -f /home/${var.admin_user}/.ssh/id_rsa -N ''",
+                        "cat /home/${var.admin_user}/.ssh/id_rsa.pub | tee -a /home/${var.admin_user}/.ssh/authorized_keys"
                     ]
-    }
-
-    provisioner "local-exec" {
-        command =   "echo '\nHost ${self.name}\n    HostName ${self.ipv4_address}\n    User ${var.admin_user}' | tee -a ~/.ssh/config"
     }
 
 }
