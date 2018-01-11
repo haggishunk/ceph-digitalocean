@@ -50,3 +50,9 @@ variable "node_user" {
     default     = "tentacle"
 }
 
+variable "admin_user" {
+    type        = "string"
+    description = "Admin username to provision on each ceph node"
+    default     = "cephalus"
+}
+

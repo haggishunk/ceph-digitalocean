@@ -1,3 +1,52 @@
+
+##################
+##ADMIN##########
+################
+
+resource "digitalocean_droplet" "ceph-admin" {
+    image                   = "${var.image}"
+    name                    = "ceph-admin"
+    region                  = "${var.do_region}"
+    size                    = "${var.size}"
+    backups                 = "False"
+    ipv6                    = "False"
+    private_networking      = "False"
+    ssh_keys                = ["${var.ssh_id}"]
+
+
+    # remote connection key
+    connection {
+        type                = "ssh"
+        user                = "root"
+        private_key         = "${file("~/.ssh/id_rsa")}"
+    }
+
+    # Update your remote VM
+    # provision node user and allow you to login in as said user 
+    # setup ssh access for admin node
+    provisioner "remote-exec" {
+        inline =    [   "apt-get -qq -y update",
+                        "apt-get -qq -y install ceph-deploy",
+                        "useradd -d /home/${var.admin_user} -m ${var.admin_user}",
+                        "echo '${var.admin_user} ALL = (root) ALL:ALL' | tee /etc/sudoers.d/${var.admin_user}",
+                        "chmod 0440 /etc/sudoers.d/${var.admin_user}",
+                        "mkdir /home/${var.admin_user}/.ssh",
+                        "cp /root/.ssh/authorized_keys /home/${var.admin_user}/.ssh/authorized_keys",
+                        "chown -R ${var.admin_user}:${var.admin_user} /home/${var.admin_user}",
+                        "chmod 0700 /home/${var.admin_user}/.ssh",
+                        "chmod  600 /home/${var.admin_user}/.ssh/authorized_keys",
+                    ]
+    }
+
+    provisioner "local-exec" {
+        command =   "echo '\nHost ${self.name}\n    HostName ${self.ipv4_address}\n    User ${var.admin_user}' | tee -a ~/.ssh/config"
+    }
+}
+
+##################
+##NODES##########
+################
+
 resource "digitalocean_droplet" "ceph" {
     image                   = "${var.image}"
     count                   = "${var.instances}"
@@ -40,6 +89,14 @@ resource "digitalocean_droplet" "ceph" {
     provisioner "local-exec" {
         command =   "echo '\nHost ${self.name}\n    HostName ${self.ipv4_address}\n    User ${var.node_user}' | tee -a ~/.ssh/config"
     }
+}
+
+##################
+##OUTPUT#########
+################
+
+output "ceph_admin_name" {
+                            = "Your ceph admin node ${digitalocean_droplet.ceph-admin.name} at ${digitalocean_droplet.ceph-admin.ipv4_address}"
 }
 
 output "ceph_node_names" {
