@@ -5,3 +5,4 @@
 *.tfstate.backup
 *.info
 terraform/data.tf
+terraform/id_rsa*
