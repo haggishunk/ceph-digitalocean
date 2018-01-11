@@ -45,13 +45,14 @@ resource "digitalocean_droplet" "ceph-admin" {
     provisioner "remote-exec" {
         inline =    [   "sudo apt-get -qq -y update",
                         "sudo apt-get -qq -y install ceph-deploy",
-#                       "sudo ssh-keygen -t rsa -b 4096 -f /home/${var.admin_user}/.ssh/id_rsa",
+                        "sudo ssh-keygen -t rsa -b 4096 -f /home/${var.admin_user}/.ssh/id_rsa -N ''",
                     ]
     }
 
     provisioner "local-exec" {
         command =   "echo '\nHost ${self.name}\n    HostName ${self.ipv4_address}\n    User ${var.admin_user}' | tee -a ~/.ssh/config"
     }
+
 }
 
 ##################
