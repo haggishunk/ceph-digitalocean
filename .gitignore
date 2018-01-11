@@ -4,3 +4,4 @@
 *.tfstate
 *.tfstate.backup
 *.info
+terraform/data.tf

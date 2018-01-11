@@ -95,10 +95,6 @@ resource "digitalocean_droplet" "ceph" {
 ##OUTPUT#########
 ################
 
-output "ceph_admin_name" {
-                            = "Your ceph admin node ${digitalocean_droplet.ceph-admin.name} at ${digitalocean_droplet.ceph-admin.ipv4_address}"
-}
-
 output "ceph_node_names" {
     value                   = "Your ceph node names are:\n${join(",\n", digitalocean_droplet.ceph.*.name)}"
 }
