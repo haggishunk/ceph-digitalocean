@@ -108,7 +108,7 @@ resource "digitalocean_droplet" "ceph" {
 ################
 
 output "ceph_admin"  {
-    value                   = "Your admin node is:\n${digitalocean_droplet.cep-_admin.0.name}"
+    value                   = "Your admin node is:\n${digitalocean_droplet.ceph-admin.0.name}"
 }
 
 output "ceph_node_names" {
