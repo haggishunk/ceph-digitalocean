@@ -1,6 +1,12 @@
 # DigitalOcean vars
 
-variable "image" {
+variable "admin_image" {
+    type        ="string"
+    description = "Admin image slug"
+    default     = "ubuntu-14-04-x64"
+}
+
+variable "node_image" {
     type        = "string"
     description = "Image name"
     default     = "ubuntu-14-04-x64"
