@@ -6,3 +6,4 @@
 *.info
 terraform/data.tf
 terraform/id_rsa*
+terraform/hosts_file
