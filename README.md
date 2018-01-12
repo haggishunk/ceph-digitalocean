@@ -57,12 +57,14 @@ Respond with 'yes' at the prompt.
 
 9. When the deployment is complete you should be able to SSH into the node names listed in Terraform's output directly from your local machine, for example:
 ```
-ssh ceph-admin
+user@home:~$ ssh ceph-admin -t 'exec bash'
+cephalus@ceph-admin:~$ 
 ```
 
 and from the admin node to the worker nodes, por ejemplo:
 ```
-ssh ceph-1
+cephalus@ceph-admin:~$ ssh ceph-1 -t 'exec bash'
+tentacle@ceph-1:~$
 ```
 
 You are now complete with the `ceph-deploy` [preflight][] instructions and you can begin [storage cluster setup][].  Future developments to this module will implement these steps in Terraform automation.
