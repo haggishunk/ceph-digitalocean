@@ -64,6 +64,7 @@ You are now complete with the `ceph-deploy` [preflight][] instructions and you c
 
 
 _NB:  Delete the `~/.ssh/config.d/ceph-digitalocean` ssh config file between deployments, lest you and ceph-deploy try connecting to nonexistant machines._
+
 _NB:  Delete the `hosts\_file` inside the terraform folder between deployments just cause._
 * * *
 
