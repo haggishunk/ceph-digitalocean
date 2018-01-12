@@ -7,25 +7,25 @@
 
 ### Usage
 
-Install [Terraform][]
+1. Install [Terraform][]
 
-Clone the repo
+2. Clone the repo
 ```
 git clone https://github.com:haggishunk/ceph-digitalocean.git
 cd ceph-digitalocean
 ```
 
-Add an include statment to the head of your SSH config file
+3. Add an include statment to the head of your SSH config file
 ```
 Include config.d/*
 ```
 
-Create an SSH config subdirectory
+4. Create an SSH config subdirectory
 ```
 mkdir ~/.ssh/config.d
 ```
 
-Make changes to terraform config files
+5. Make changes to terraform config files
 
 `terraform.tfvars`
 * `ssh_id:` change to your DigitalOcean SSH key md5 fingerprint
@@ -38,24 +38,29 @@ Make changes to terraform config files
 `instances.tf`
 * `connection - private_key:` ensure private key file matches fingerprint specified with `ssh_id` above
 
-Initialize
+6. Initialize
 ```
 terraform init
 ```
 
-Plan
+7. Plan
 ```
 terraform plan
 ```
 
-Deploy
+8. Deploy
 ```
 terraform apply
 ```
 
 Respond with 'yes' at the prompt.
 
-When the deployment is complete you should be able to SSH into the node names listed.
+9. When the deployment is complete you should be able to SSH into the node names listed in Terraform's output directly from your local machine, for example:
+```
+ssh ceph-admin
+```
+
+and from the admin node to the worker nodes, por ejemplo:
 ```
 ssh ceph-1
 ```
@@ -65,7 +70,7 @@ You are now complete with the `ceph-deploy` [preflight][] instructions and you c
 
 _NB:  Delete the `~/.ssh/config.d/ceph-digitalocean` ssh config file between deployments, lest you and ceph-deploy try connecting to nonexistant machines._
 
-_NB:  Delete the `hosts\_file` inside the terraform folder between deployments just cause._
+_NB:  Delete the `hosts_file` inside the terraform folder between deployments for the same reason._
 * * *
 
 [ceph]:                         http://ceph.com                                                                                 "http://ceph.com" 
