@@ -15,6 +15,16 @@ git clone https://github.com:haggishunk/ceph-digitalocean.git
 cd ceph-digitalocean
 ```
 
+Add an include statment to the head of your SSH config file
+```
+Include config.d/*
+```
+
+Create an SSH config subdirectory
+```
+mkdir ~/.ssh/config.d
+```
+
 Make changes to terraform config files
 
 `terraform.tfvars`
@@ -53,7 +63,8 @@ ssh ceph-1
 You are now complete with the `ceph-deploy` [preflight][] instructions and you can begin [storage cluster setup][].  Future developments to this module will implement these steps in Terraform automation.
 
 
-_NB:  Clean up any stale `Host` entries in your ssh config file from previous instance deployments, lest ceph-deploy try connecting to nonexistant machines._
+_NB:  Delete the `~/.ssh/config.d/ceph-digitalocean` ssh config file between deployments, lest you and ceph-deploy try connecting to nonexistant machines._
+_NB:  Delete the `hosts\_file` inside the terraform folder between deployments just cause._
 * * *
 
 [ceph]:                         http://ceph.com                                                                                 "http://ceph.com" 
