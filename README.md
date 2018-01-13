@@ -5,6 +5,10 @@
 
 [Ceph][] is a cool open-source cluster storage solution that features device, block & object storage.
 
+### Requirements
+
+[OpenSSH 7.3p1][] or later to support `Include` directive in ssh_config file.
+
 ### Usage
 
 1. Install [Terraform][]
@@ -76,6 +80,7 @@ _NB:  Delete the `hosts_file` inside the terraform folder between deployments fo
 * * *
 
 [ceph]:                         http://ceph.com                                                                                 "http://ceph.com" 
+[openssh 7.3p1]:                https://www.openssh.com/txt/release-7.3
 [preflight]:        http://docs.ceph.com/docs/master/start/quick-start-preflight/                                   "http://docs.ceph.com/docs/master/start/quick-start-preflight/"
 [storage cluster setup]:        http://docs.ceph.com/docs/master/start/quick-ceph-deploy/#                                      "http://docs.ceph.com/docs/master/start/quick-ceph-deploy/#"           
 [terraform]:                    https://www.terraform.io/downloads.html                                                         "https://www.terraform.io/downloads.html"
