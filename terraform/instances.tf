@@ -94,6 +94,7 @@ resource "null_resource" "admin-config" {
 ################
 
 resource "digitalocean_droplet" "ceph" {
+    depends_on              = ["null_resource.pre-clean"]
     image                   = "${var.node_image}"
     count                   = "${var.instances}"
     name                    = "${var.prefix}-${count.index+1}"
@@ -142,6 +143,18 @@ resource "digitalocean_droplet" "ceph" {
     provisioner "local-exec" {
         command =   "echo '${self.ipv4_address} ${self.name} ${self.name}' | tee -a ${path.root}/hosts_file"
     }
+}
+
+##################
+##PRE-CLEANING###
+################
+
+resource "null_resource" "pre-clean" {
+
+    provisioner "local-exec" {
+        command =   "rm ~/.ssh/config.d/ceph-digitalocean || rm ${path.root}/hosts_file"
+    }
+
 }
 
 ##################
