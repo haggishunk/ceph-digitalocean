@@ -152,7 +152,7 @@ resource "digitalocean_droplet" "ceph" {
 resource "null_resource" "pre-clean" {
 
     provisioner "local-exec" {
-        command =   "rm ~/.ssh/config.d/ceph-digitalocean || rm ${path.root}/hosts_file"
+        command =   "rm ~/.ssh/config.d/ceph-digitalocean ; rm ${path.root}/hosts_file"
     }
 
 }
