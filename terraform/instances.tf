@@ -89,6 +89,15 @@ resource "null_resource" "admin-config" {
         command = "scp -3 -o StrictHostKeyChecking=no ceph-admin:~/.ssh/authorized_keys ceph-3:~/.ssh/authorized_keys"
     }
 
+    # add optional touch to add node keys to admin
+    provisioner "remote-exec" {
+        inline =    [
+                        "scp -o StrictHostKeyChecking=no release.asc ceph-1:~/release.asc",
+                        "scp -o StrictHostKeyChecking=no release.asc ceph-2:~/release.asc",
+                        "scp -o StrictHostKeyChecking=no release.asc ceph-3:~/release.asc",
+                    ]
+    }
+
 }
 
 ##################
@@ -164,7 +173,7 @@ resource "null_resource" "pre-clean" {
 ################
 
 output "ceph_admin"  {
-    value                   = "Your admin node is:\n${digitalocean_droplet.ceph-admin.0.name}"
+    value                   = "Your admin node is:\n${digitalocean_droplet.ceph-admin.0.name} (${digitalocean_droplet.ceph-admin.0.ipv4_address}) (${digitalocean_droplet.ceph-admin.0.ipv4_address_private})"
 }
 
 output "ceph_node_names" {
