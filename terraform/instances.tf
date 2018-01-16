@@ -61,7 +61,9 @@ resource "null_resource" "admin-config" {
     #     append to authorized_keys for copying out to worker nodes later
     # Append ceph hosts to /etc/hosts
     provisioner "remote-exec" {
-        inline =    [  
+        inline =    [
+                        "wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -",
+                        "echo deb https://download.ceph.com/debian/ $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/ceph.list",
                         "sudo apt-get -qq update",
                         "sudo apt-get -qq -y install ceph-deploy",
                         "ssh-keygen -t rsa -b 4096 -f /home/${var.admin_user}/.ssh/id_rsa -N '' -C '' ",
