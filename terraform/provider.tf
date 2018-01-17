@@ -1,3 +1,3 @@
 provider "digitalocean" {
-    token = "${file("~/.creds/do_token")}"
+    token = "${chomp(file("~/.creds/do_token"))}"
 }
