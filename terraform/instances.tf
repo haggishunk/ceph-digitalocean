@@ -66,6 +66,7 @@ resource "null_resource" "admin-config" {
                         "echo deb https://download.ceph.com/debian/ $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/ceph.list",
                         "sudo apt-get -qq update",
                         "sudo apt-get -qq -y install ceph-deploy",
+                        "sudo apt-get -qq -y install jq",
                         "ssh-keygen -t rsa -b 4096 -f /home/${var.admin_user}/.ssh/id_rsa -N '' -C '' ",
                         "cat /home/${var.admin_user}/.ssh/id_rsa.pub | tee -a /home/${var.admin_user}/.ssh/authorized_keys",
                         "sudo cat /home/${var.admin_user}/hosts_file | sudo tee -a /etc/hosts",
