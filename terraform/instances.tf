@@ -93,9 +93,10 @@ resource "null_resource" "admin-config" {
     # add optional touch to add node keys to admin
     provisioner "remote-exec" {
         inline =    [
-                        "scp -o StrictHostKeyChecking=no release.asc ceph-1:~/release.asc",
-                        "scp -o StrictHostKeyChecking=no release.asc ceph-2:~/release.asc",
-                        "scp -o StrictHostKeyChecking=no release.asc ceph-3:~/release.asc",
+                        "touch ~/touchpoint",
+                        "scp -o StrictHostKeyChecking=no touchpoint ceph-1:~/touchpoint",
+                        "scp -o StrictHostKeyChecking=no touchpoint ceph-2:~/touchpoint",
+                        "scp -o StrictHostKeyChecking=no touchpoint ceph-3:~/touchpoint",
                     ]
     }
 
