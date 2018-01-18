@@ -7,7 +7,9 @@
 
 ### Requirements
 
-[OpenSSH 7.3p1][] or later to support `Include` directive in ssh_config file.
+* [OpenSSH 7.3p1][] or later to support `Include` directive in ssh_config file.
+
+* [DigitalOcean][] account
 
 ### Usage
 
@@ -33,8 +35,9 @@ mkdir ~/.ssh/config.d
 
 `terraform.tfvars`
 * `ssh_id:` change to your DigitalOcean SSH key md5 fingerprint
-* `instances:` change to desired number of nodes, min 3 _(optional)_
-* `do_region:` change to desired DigitalOcean instance region, select a region with [volume availability][] _(optional)_
+* `instances:` change to desired number of nodes _(optional)_
+* `do_region:` change to desired DigitalOcean instance region.  Make sure to select a region with [volume availability][] _(optional)_
+* `size_vol:` change to desired volume size _(optional)_
 
 `provider.tf`
 * `token:` change file path to location of your DigitalOcean token string
@@ -65,7 +68,7 @@ user@home:~$ ssh ceph-admin -t 'exec bash'
 cephalus@ceph-admin:~$ 
 ```
 
-and from the admin node to the worker nodes, por ejemplo:
+and from the admin node to the worker nodes, like so:
 ```
 cephalus@ceph-admin:~$ ssh ceph-1 -t 'exec bash'
 tentacle@ceph-1:~$
@@ -73,15 +76,12 @@ tentacle@ceph-1:~$
 
 You are now complete with the `ceph-deploy` [preflight][] instructions and you can begin [storage cluster setup][].  Future developments to this module will implement these steps in Terraform automation.
 
-
-_NB:  Delete the `~/.ssh/config.d/ceph-digitalocean` ssh config file between deployments, lest you and ceph-deploy try connecting to nonexistant machines._
-
-_NB:  Delete the `hosts_file` inside the terraform folder between deployments for the same reason._
 * * *
 
-[ceph]:                         http://ceph.com                                                                                 "http://ceph.com" 
+[ceph]:                         http://ceph.com
 [openssh 7.3p1]:                https://www.openssh.com/txt/release-7.3
-[preflight]:        http://docs.ceph.com/docs/master/start/quick-start-preflight/                                   "http://docs.ceph.com/docs/master/start/quick-start-preflight/"
-[storage cluster setup]:        http://docs.ceph.com/docs/master/start/quick-ceph-deploy/#                                      "http://docs.ceph.com/docs/master/start/quick-ceph-deploy/#"           
-[terraform]:                    https://www.terraform.io/downloads.html                                                         "https://www.terraform.io/downloads.html"
-[volume availability]:          https://www.digitalocean.com/community/tutorials/how-to-use-block-storage-on-digitalocean       "https://www.digitalocean.com/community/tutorials/how-to-use-block-storage-on-digitalocean"
+[digitalocean]:                 https://cloud.digitalocean.com
+[preflight]:        http://docs.ceph.com/docs/master/start/quick-start-preflight/
+[storage cluster setup]:        http://docs.ceph.com/docs/master/start/quick-ceph-deploy/#
+[terraform]:                    https://www.terraform.io/downloads.html
+[volume availability]:          https://www.digitalocean.com/community/tutorials/how-to-use-block-storage-on-digitalocean
