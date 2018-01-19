@@ -76,6 +76,8 @@ tentacle@ceph-1:~$
 
 You are now complete with the `ceph-deploy` [preflight][] instructions and you can begin [storage cluster setup][].  Future developments to this module will implement these steps in Terraform automation.
 
+Or alternatively, check out my [blog post][] for step-by-step instructions to stand up a Ceph object storage cluster on your new DO droplets.
+
 * * *
 
 [ceph]:                         http://ceph.com
@@ -85,3 +87,4 @@ You are now complete with the `ceph-deploy` [preflight][] instructions and you c
 [storage cluster setup]:        http://docs.ceph.com/docs/master/start/quick-ceph-deploy/#
 [terraform]:                    https://www.terraform.io/downloads.html
 [volume availability]:          https://www.digitalocean.com/community/tutorials/how-to-use-block-storage-on-digitalocean
+[blog post]:                    http://blog.pantageo.us/ceph-storage-cluster-on-digital-ocean-using-terraform-part-3.html
