@@ -55,12 +55,10 @@ terraform init
 terraform plan
 ```
 
-8. Deploy
+8. Deploy and respond with 'yes' at the prompt.
 ```
 terraform apply
 ```
-
-> Respond with 'yes' at the prompt.
 
 9. When the deployment is complete you should be able to SSH into the node names listed in Terraform's output directly from your local machine, for example:
 ```
@@ -68,7 +66,7 @@ user@home:~$ ssh ceph-admin -t 'exec bash'
 cephalus@ceph-admin:~$ 
 ```
 
-> and from the admin node to the worker nodes, like so:
+10. and from the admin node to the worker nodes, like so:
 ```
 cephalus@ceph-admin:~$ ssh ceph-1 -t 'exec bash'
 tentacle@ceph-1:~$
