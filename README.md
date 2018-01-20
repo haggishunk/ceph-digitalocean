@@ -33,17 +33,17 @@ mkdir ~/.ssh/config.d
 
 5. Make changes to terraform config files
 
-`terraform.tfvars`
-* `ssh_id:` change to your DigitalOcean SSH key md5 fingerprint
-* `instances:` change to desired number of nodes _(optional)_
-* `do_region:` change to desired DigitalOcean instance region.  Make sure to select a region with [volume availability][] _(optional)_
-* `size_vol:` change to desired volume size _(optional)_
+* `terraform.tfvars`
+ * `ssh_id:` change to your DigitalOcean SSH key md5 fingerprint
+ * `instances:` change to desired number of nodes _(optional)_
+ * `do_region:` change to desired DigitalOcean instance region.  Make sure to select a region with [volume availability][] _(optional)_
+ * `size_vol:` change to desired volume size _(optional)_
 
-`provider.tf`
-* `token:` change file path to location of your DigitalOcean token string
+* `provider.tf`
+ * `token:` change file path to location of your DigitalOcean token string
 
-`instances.tf`
-* `connection - private_key:` ensure private key file matches fingerprint specified with `ssh_id` above
+* `instances.tf`
+ * `connection - private_key:` ensure private key file matches fingerprint specified with `ssh_id` above
 
 6. Initialize
 ```
