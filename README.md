@@ -7,31 +7,32 @@
 
 ### Requirements
 
+* [Terraform][]
+
 * [OpenSSH 7.3p1][] or later to support `Include` directive in ssh_config file.
 
-* [DigitalOcean][] account
+* A [DigitalOcean][] account
 
 ### Usage
 
-1. Install [Terraform][]
 
-2. Clone the repo
+1. Clone the repo
 ```
 git clone https://github.com:haggishunk/ceph-digitalocean.git
 cd ceph-digitalocean
 ```
 
-3. Add an include statment to the head of your SSH config file
+2. Add an include statment to the head of your SSH config file
 ```
 Include config.d/*
 ```
 
-4. Create an SSH config subdirectory
+3. Create an SSH config subdirectory
 ```
 mkdir ~/.ssh/config.d
 ```
 
-5. Make changes to terraform config files
+4. Make changes to terraform config files
 
 * `terraform.tfvars`
   * `ssh_id:` change to your DigitalOcean SSH key md5 fingerprint
@@ -45,28 +46,28 @@ mkdir ~/.ssh/config.d
 * `instances.tf`
   * `connection - private_key:` ensure private key file matches fingerprint specified with `ssh_id` above
 
-6. Initialize
+5. Initialize
 ```
 terraform init
 ```
 
-7. Plan
+6. Plan
 ```
 terraform plan
 ```
 
-8. Deploy and respond with 'yes' at the prompt.
+7. Deploy and respond with 'yes' at the prompt.
 ```
 terraform apply
 ```
 
-9. When the deployment is complete you should be able to SSH into the node names listed in Terraform's output directly from your local machine, for example:
+8. When the deployment is complete you should be able to SSH into the node names listed in Terraform's output directly from your local machine, for example:
 ```
 user@home:~$ ssh ceph-admin -t 'exec bash'
 cephalus@ceph-admin:~$ 
 ```
 
-10. and from the admin node to the worker nodes, like so:
+9. and from the admin node to the worker nodes, like so:
 ```
 cephalus@ceph-admin:~$ ssh ceph-1 -t 'exec bash'
 tentacle@ceph-1:~$
