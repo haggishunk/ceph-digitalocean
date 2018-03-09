@@ -3,7 +3,7 @@
 ################
 
 resource "digitalocean_droplet" "ceph-admin" {
-  image              = "${var.image}"
+  image              = "${var.admin_image}"
   name               = "ceph-admin"
   region             = "${var.region}"
   size               = "${var.size}"
