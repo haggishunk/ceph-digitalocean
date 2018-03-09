@@ -1,6 +1,10 @@
 resource "digitalocean_firewall" "ssh" {
-  name        = "ceph-ssh-22"
-  droplet_ids = ["${digitalocean_droplet.ceph-admin.id}", "${digitalocean_droplet.ceph.*.id}"]
+  name = "ceph-ssh-22"
+
+  droplet_ids = [
+    "${digitalocean_droplet.ceph-admin.id}",
+    "${digitalocean_droplet.ceph.*.id}",
+  ]
 
   inbound_rule = [
     {
@@ -29,7 +33,7 @@ resource "digitalocean_firewall" "ssh" {
 
 resource "digitalocean_firewall" "rgw" {
   name        = "ceph-rgw-thru-web"
-  droplet_ids = ["${digitalocean_droplet.ceph.2.id}"]
+  droplet_ids = ["${digitalocean_droplet.ceph.*.id}"]
 
   inbound_rule = [
     {

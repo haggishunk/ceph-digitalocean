@@ -5,3 +5,5 @@
 *.tfstate.backup
 *.info
 stuff
+*.tfvars
+plan

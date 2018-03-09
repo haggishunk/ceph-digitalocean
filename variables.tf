@@ -12,7 +12,7 @@ variable "node_image" {
     default     = "ubuntu-14-04-x64"
 }
 
-variable "instances" {
+variable "worker_qty" {
     type        = "string"
     description = "Number of droplets to deploy"
     default     = "1"
@@ -24,7 +24,7 @@ variable "prefix" {
     default     = "whateveryoulike"
 }
 
-variable "do_region" {
+variable "region" {
     # for this project you will want a region with volumes available
     type        = "string"
     description = "DigitalOcean droplet region"
@@ -34,7 +34,7 @@ variable "do_region" {
 variable "size" {
     type        = "string"
     description = "Droplet RAM"
-    default     = "512MB"
+    default     = "1GB"
 }
 
 variable "size_vol" {
@@ -50,15 +50,8 @@ variable "ssh_id" {
     default     = "xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx"
 }
 
-variable "node_user" {
+variable "user" {
     type        = "string"
     description = "User to provision on each ceph node"
     default     = "tentacle"
 }
-
-variable "admin_user" {
-    type        = "string"
-    description = "Admin username to provision on each ceph node"
-    default     = "cephalus"
-}
-
