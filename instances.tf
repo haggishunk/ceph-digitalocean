@@ -47,16 +47,7 @@ resource "null_resource" "admin-config" {
   #     append to authorized_keys for copying out to worker nodes later
   # Append ceph hosts to /etc/hosts
   provisioner "remote-exec" {
-    inline = [
-      "wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -",
-      "echo deb https://download.ceph.com/debian/ $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/ceph.list",
-      "sudo apt-get -qq update",
-      "sudo apt-get -qq -y install ceph-deploy",
-      "sudo apt-get -qq -y install jq",
-      "ssh-keygen -t rsa -b 4096 -f /home/${var.user}/.ssh/id_rsa -N '' -C '' ",
-      "cat /home/${var.user}/.ssh/id_rsa.pub | tee -a /home/${var.user}/.ssh/authorized_keys",
-      "sudo cat /home/${var.user}/hosts_file | sudo tee -a /etc/hosts",
-    ]
+    inline = ["${data.template_file.ceph-install.rendered}"]
   }
 
   # make bash pretty
@@ -106,13 +97,14 @@ ${var.user}@${digitalocean_droplet.ceph.0.ipv4_address}:~/.ssh/authorized_keys
 EOF
   }
   
-  # add optional touch to add node keys to admin
+  # copy file from admin to each worker to establish connection precedent
+  # also requires scaling
   provisioner "remote-exec" {
     inline = [
       "touch ~/touchpoint",
-      "scp -o StrictHostKeyChecking=no touchpoint ceph-1:~/touchpoint",
-      "scp -o StrictHostKeyChecking=no touchpoint ceph-2:~/touchpoint",
-      "scp -o StrictHostKeyChecking=no touchpoint ceph-3:~/touchpoint",
+      "scp -o StrictHostKeyChecking=no touchpoint ${var.user}@${digitalocean_droplet.ceph.0.ipv4_address}:~/touchpoint",
+      "scp -o StrictHostKeyChecking=no touchpoint ${var.user}@${digitalocean_droplet.ceph.1.ipv4_address}:~/touchpoint",
+      "scp -o StrictHostKeyChecking=no touchpoint ${var.user}@${digitalocean_droplet.ceph.2.ipv4_address}:~/touchpoint",
     ]
   }
 }
@@ -132,6 +124,7 @@ resource "digitalocean_droplet" "ceph" {
   backups            = "False"
   ipv6               = "False"
   private_networking = "True"
+  monitoring         = "False"
   ssh_keys           = ["${var.ssh_id}"]
 
   # remote connection key
@@ -170,7 +163,7 @@ resource "digitalocean_droplet" "ceph" {
 
   # generate local ssh `config` file to be copied to ceph-admin later
   provisioner "local-exec" {
-    command = "echo '\nHost ${self.name}\n    HostName ${self.ipv4_address}\n    User ${var.user}' | tee -a ~/.ssh/config.d/ceph-digitalocean"
+    command = "echo '\nHost ${self.name}\n    HostName ${self.ipv4_address}\n    User ${var.user}' | tee ~/.ssh/config.d/ceph-${count.index}.config"
   }
 
   # spit out `/etc/hosts` entries to be copied to ceph-admin later

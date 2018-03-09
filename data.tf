@@ -6,6 +6,14 @@ data "template_file" "newuser" {
   }
 }
 
+data "template_file" "ssh-config" {
+  template = "${file("${path.root}/terraform-template-files/ssh-config.sh")}"
+}
+
+data "template_file" "ssh-remote" {
+  template = "${file("${path.root}/terraform-template-files/ssh-remote.sh")}"
+}
+
 data "template_file" "ceph-install" {
   template = "${file("${path.root}/terraform-template-files/ceph-install.sh")}"
 
