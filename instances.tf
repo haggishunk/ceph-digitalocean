@@ -57,6 +57,19 @@ resource "null_resource" "ceph-admin-config" {
     command = "scp -o StrictHostKeyChecking=no ~/.ssh/config.d/ceph-*.ssh.config ${var.user}@${digitalocean_droplet.ceph-admin.ipv4_address}:~"
   }
 
+  # Copy worker hosts file to admin node
+  # (repeat this step for worker changes)
+  provisioner "local-exec" {
+    command = "scp -o StrictHostKeyChecking=no ${path.root}/stuff/hosts_file ${var.user}@${digitalocean_droplet.ceph-admin.ipv4_address}:/home/${var.user}/hosts_file"
+  }
+
+  # corral ssh config definitions, hosts defs for worker nodes
+  # create ssh pub/pri keypair for distribution to worker nodes
+  # (repeat this step for worker changes)
+  provisioner "remote-exec" {
+    inline = ["${data.template_file.ssh-remote.rendered}"]
+  }
+
   # copy admin node authorized keys to worker nodes
   # !!!need to scale this!!!
   # (repeat this for worker changes)
@@ -84,22 +97,10 @@ resource "null_resource" "ceph-admin-config" {
     ]
   }
 
-  # Spit out ssh config file
+  # Spit out ssh config file to ~/.ssh/config.d/
   # (repeat this only when admin node changes)
   provisioner "local-exec" {
     command = "echo 'Host ${digitalocean_droplet.ceph-admin.name}\n    HostName ${digitalocean_droplet.ceph-admin.ipv4_address}\n    User ${var.user}' | tee ~/.ssh/config.d/ceph-admin.ssh.config"
-  }
-
-  # Copy worker hosts file to admin node
-  # (repeat this step for worker changes)
-  provisioner "local-exec" {
-    command = "scp -o StrictHostKeyChecking=no ${path.root}/stuff/hosts_file ${var.user}@${digitalocean_droplet.ceph-admin.ipv4_address}:/home/${var.user}/hosts_file"
-  }
-
-  # corral ssh config definitions for worker nodes
-  # (repeat this step for worker changes)
-  provisioner "remote-exec" {
-    inline = ["${data.template_file.ssh-remote.rendered}"]
   }
 
   # Update your remote VM and install ceph
