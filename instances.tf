@@ -17,12 +17,12 @@ resource "digitalocean_droplet" "ceph-admin" {
   connection {
     type        = "ssh"
     user        = "root"
-    private_key = "${file("~/.ssh/id_rsa")}"
   }
 
   # provision admin user and allow you to login in as said user
   provisioner "remote-exec" {
-    inline = ["useradd -d /home/${var.admin_user} -m ${var.admin_user}",
+    inline = [
+      "useradd -d /home/${var.admin_user} -m ${var.admin_user}",
       "echo '${var.admin_user} ALL = (root) NOPASSWD:ALL' | tee /etc/sudoers.d/${var.admin_user}",
       "chmod 0440 /etc/sudoers.d/${var.admin_user}",
       "mkdir /home/${var.admin_user}/.ssh",
@@ -50,7 +50,6 @@ resource "null_resource" "admin-config" {
     host        = "${digitalocean_droplet.ceph-admin.0.ipv4_address}"
     type        = "ssh"
     user        = "${var.admin_user}"
-    private_key = "${file("~/.ssh/id_rsa")}"
   }
 
   # Update your remote VM and install ceph
@@ -121,7 +120,6 @@ resource "digitalocean_droplet" "ceph" {
   connection {
     type        = "ssh"
     user        = "root"
-    private_key = "${file("~/.ssh/id_rsa")}"
   }
 
   # Update your remote VM
