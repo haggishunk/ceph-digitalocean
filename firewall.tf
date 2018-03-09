@@ -1,39 +1,40 @@
 resource "digitalocean_firewall" "ssh" {
   name = "ceph-ssh-22"
 
-  droplet_ids = [
-    "${digitalocean_droplet.ceph-admin.id}",
-    "${digitalocean_droplet.ceph.*.id}",
-  ]
+  tags = ["${digitalocean_tag.ceph.name}"]
 
   inbound_rule = [
     {
       protocol   = "tcp"
       port_range = "22"
 
-      source_droplet_ids = [
-        "${digitalocean_droplet.ceph-admin.id}",
-      ]
-
-      source_addresses = ["0.0.0.0/0"]
+      source_addresses = ["${var.admin_cidr}"]
     },
   ]
+}
 
-  outbound_rule = [
+resource "digitalocean_firewall" "ping" {
+  name = "ceph-ping"
+
+  tags = ["${digitalocean_tag.ceph.name}"]
+
+  inbound_rule = [
     {
-      protocol   = "tcp"
-      port_range = "22"
+      protocol   = "icmp"
+      port_range = "1-65535"
 
-      destination_droplet_ids = [
-        "${digitalocean_droplet.ceph.*.id}",
-      ]
+      source_addresses = ["${var.admin_cidr}",
+                          "${digitalocean_droplet.ceph-admin.ipv4_address}",
+                          "${digitalocean_droplet.ceph-admin.ipv4_address_private}",
+                        ]
     },
   ]
 }
 
 resource "digitalocean_firewall" "rgw" {
-  name        = "ceph-rgw-thru-web"
-  droplet_ids = ["${digitalocean_droplet.ceph.*.id}"]
+  name = "ceph-rgw-thru-web"
+
+  tags = ["${digitalocean_tag.ceph.name}"]
 
   inbound_rule = [
     {
@@ -42,22 +43,12 @@ resource "digitalocean_firewall" "rgw" {
       source_addresses = ["0.0.0.0/0"]
     },
   ]
-
-  outbound_rule = [
-    {
-      protocol              = "tcp"
-      port_range            = "80"
-      destination_addresses = ["0.0.0.0/0"]
-    },
-  ]
 }
 
 resource "digitalocean_firewall" "mon" {
   name = "ceph-allow-monitor"
 
-  droplet_ids = [
-    "${digitalocean_droplet.ceph.*.id}",
-  ]
+  tags = ["${digitalocean_tag.ceph.name}"]
 
   inbound_rule = [
     {
@@ -65,51 +56,35 @@ resource "digitalocean_firewall" "mon" {
       port_range = "6789"
 
       source_addresses = [
-        "${digitalocean_droplet.ceph.*.ipv4_address}",
-      ]
-    },
-  ]
-
-  outbound_rule = [
-    {
-      protocol   = "tcp"
-      port_range = "6789"
-
-      destination_addresses = [
         "${digitalocean_droplet.ceph.*.ipv4_address}",
       ]
     },
   ]
 }
 
-resource "digitalocean_firewall" "osd" {
-  name = "ceph-allow-osd"
+resource "digitalocean_firewall" "outbound" {
+  name = "ceph-update"
 
-  droplet_ids = [
-    "${digitalocean_droplet.ceph.*.id}",
-  ]
-
-  inbound_rule = [
-    {
-      protocol   = "tcp"
-      port_range = "6800-7300"
-
-      source_addresses = [
-        "${digitalocean_droplet.ceph.*.ipv4_address}",
-        "${digitalocean_droplet.ceph.*.ipv4_address_private}",
-      ]
-    },
-  ]
+  tags = ["${digitalocean_tag.ceph.name}"]
 
   outbound_rule = [
     {
       protocol   = "tcp"
-      port_range = "6800-7300"
+      port_range = "1-65535"
 
-      destination_addresses = [
-        "${digitalocean_droplet.ceph.*.ipv4_address}",
-        "${digitalocean_droplet.ceph.*.ipv4_address_private}",
-      ]
+      destination_addresses = ["0.0.0.0/0"]
+    },
+    {
+      protocol   = "udp"
+      port_range = "1-65535"
+
+      destination_addresses = ["0.0.0.0/0"]
+    },
+    {
+      protocol   = "icmp"
+      port_range = "1-65535"
+
+      destination_addresses = ["0.0.0.0/0"]
     },
   ]
 }
