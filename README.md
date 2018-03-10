@@ -11,6 +11,8 @@
 
 * [DigitalOcean][] account
 
+* [ssh-agent][]
+
 ### Usage
 
 1. Install [Terraform][]
@@ -39,11 +41,16 @@ mkdir ~/.ssh/config.d
   * `do_region:` change to desired DigitalOcean instance region.  Make sure to select a region with [volume availability][] _(optional)_
   * `size_vol:` change to desired volume size _(optional)_
 
-* `provider.tf`
-  * `token:` change file path to location of your DigitalOcean token string
+2. Export your DigitalOcean token as an environment variable:
+```
+$ export DIGITALOCEAN_TOKEN="your-long-token-string-here"
+```
 
-* `instances.tf`
-  * `connection - private_key:` ensure private key file matches fingerprint specified with `ssh_id` above
+3. Initialize ssh-agent and add the SSH key that corresponds to the one you specified above:
+```
+$ eval $(ssh-agent)
+$ ssh-add /path/to/your/id_rsa
+```
 
 6. Initialize
 ```
@@ -52,12 +59,12 @@ terraform init
 
 7. Plan
 ```
-terraform plan
+terraform plan -out plan
 ```
 
-8. Deploy and respond with 'yes' at the prompt.
+8. Deploy 
 ```
-terraform apply
+terraform apply plan
 ```
 
 9. When the deployment is complete you should be able to SSH into the node names listed in Terraform's output directly from your local machine, for example:
@@ -86,3 +93,4 @@ Or alternatively, check out my [blog post][] for step-by-step instructions to st
 [terraform]:                    https://www.terraform.io/downloads.html
 [volume availability]:          https://www.digitalocean.com/community/tutorials/how-to-use-block-storage-on-digitalocean
 [blog post]:                    http://blog.pantageo.us/ceph-storage-cluster-on-digital-ocean-using-terraform-part-3.html
+[ssh-agent]:                    https://linux.die.net/man/1/ssh-agent
