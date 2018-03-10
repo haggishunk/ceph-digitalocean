@@ -17,7 +17,6 @@ resource "digitalocean_droplet" "ceph-admin" {
   connection {
     type        = "ssh"
     user        = "root"
-    private_key = "${file("~/.ssh/id_rsa")}"
   }
 
   # provision admin user and allow you to login in as said user
@@ -50,7 +49,6 @@ resource "null_resource" "admin-config" {
     host        = "${digitalocean_droplet.ceph-admin.0.ipv4_address}"
     type        = "ssh"
     user        = "${var.admin_user}"
-    private_key = "${file("~/.ssh/id_rsa")}"
   }
 
   # Update your remote VM and install ceph
@@ -121,7 +119,6 @@ resource "digitalocean_droplet" "ceph" {
   connection {
     type        = "ssh"
     user        = "root"
-    private_key = "${file("~/.ssh/id_rsa")}"
   }
 
   # Update your remote VM
@@ -161,7 +158,7 @@ resource "digitalocean_droplet" "ceph" {
 
 resource "null_resource" "pre-clean" {
   provisioner "local-exec" {
-    command = "rm ~/.ssh/config.d/ceph-digitalocean ; rm ${path.root}/hosts_file"
+    command = "rm ~/.ssh/config.d/ceph-digitalocean || echo \"No ssh configs found\"; rm ${path.root}/hosts_file || echo \"No hosts file found\""
   }
 }
 
