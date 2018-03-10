@@ -18,12 +18,12 @@
 2. Clone the repo
 ```
 git clone https://github.com:haggishunk/ceph-digitalocean.git
-cd ceph-digitalocean
+cd ceph-digitalocean/terraform
 ```
 
-3. Add an include statment to the head of your SSH config file
+3. Add an include statment to the head of your SSH config file (~/.ssh/config)
 ```
-Include config.d/*
+include config.d/*
 ```
 
 4. Create an SSH config subdirectory
