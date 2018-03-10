@@ -60,7 +60,7 @@ resource "null_resource" "ceph-admin-config" {
   # Copy worker hosts file to admin node
   # (repeat this step for worker changes)
   provisioner "local-exec" {
-    command = "scp -o StrictHostKeyChecking=no ${path.root}/stuff/hosts_file ${var.user}@${digitalocean_droplet.ceph-admin.ipv4_address}:/home/${var.user}/hosts_file"
+    command = "scp -o StrictHostKeyChecking=no ${path.root}/stuff/hosts_* ${var.user}@${digitalocean_droplet.ceph-admin.ipv4_address}:/home/${var.user}/"
   }
 
   # corral ssh config definitions, hosts defs for worker nodes
@@ -185,7 +185,7 @@ resource "null_resource" "ceph-config" {
   # spit out `/etc/hosts` entries to be copied to ceph-admin later
   # !!!could be done through dns or with reverse proxy(?) instead!!!
   provisioner "local-exec" {
-    command = "echo '${element(digitalocean_droplet.ceph.*.ipv4_address, count.index)} ${element(digitalocean_droplet.ceph.*.name, count.index)} ${element(digitalocean_droplet.ceph.*.name, count.index)}' | tee -a ${path.root}/hosts_file"
+    command = "echo '${element(digitalocean_droplet.ceph.*.ipv4_address, count.index)} ${element(digitalocean_droplet.ceph.*.name, count.index)} ${element(digitalocean_droplet.ceph.*.name, count.index)}' | tee ${path.root}/stuff/hosts_${element(digitalocean_droplet.ceph.*.name, count.index)}"
   }
 }
 
@@ -195,7 +195,7 @@ resource "null_resource" "ceph-config" {
 
 resource "null_resource" "pre-clean" {
   provisioner "local-exec" {
-    command = "rm ~/.ssh/config.d/ceph-*.ssh.config || echo \"No ceph ssh config files found\" ; rm ${path.root}/hosts_file || echo \"No hosts file found in module root\""
+    command = "rm ~/.ssh/config.d/ceph-*.ssh.config || echo \"No ceph ssh config files found\" ; rm ${path.root}/stuff/hosts_* || echo \"No hosts file found in module root\""
   }
 }
 
