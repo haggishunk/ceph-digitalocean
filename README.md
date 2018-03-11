@@ -33,10 +33,10 @@ include config.d/*
 mkdir ~/.ssh/config.d
 ```
 
-5. Make changes to terraform config files
+5. Make changes to terraform variables file
 
 * `terraform.tfvars`
-  * `ssh_id:` change to your DigitalOcean SSH key md5 fingerprint
+  * `ssh_id:` change to your DigitalOcean SSH key md5 fingerprint or [ID][]
   * `instances:` change to desired number of nodes _(optional)_
   * `do_region:` change to desired DigitalOcean instance region.  Make sure to select a region with [volume availability][] _(optional)_
   * `size_vol:` change to desired volume size _(optional)_
@@ -94,3 +94,4 @@ Or alternatively, check out my [blog post][] for step-by-step instructions to st
 [volume availability]:          https://www.digitalocean.com/community/tutorials/how-to-use-block-storage-on-digitalocean
 [blog post]:                    http://blog.pantageo.us/ceph-storage-cluster-on-digital-ocean-using-terraform-part-3.html
 [ssh-agent]:                    https://linux.die.net/man/1/ssh-agent
+[id]:                           https://www.digitalocean.com/community/tutorials/how-to-use-doctl-the-official-digitalocean-command-line-client
