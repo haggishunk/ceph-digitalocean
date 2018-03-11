@@ -1,0 +1,4 @@
+{
+    "graph": "/mnt/docker-data",
+    "storage-driver": "${storage_driver}"
+}

@@ -4,6 +4,7 @@
 *.tfstate
 *.tfstate.backup
 *.info
-terraform/data.tf
-terraform/id_rsa*
-terraform/hosts_file
+stuff
+*.tfvars
+plan
+etc

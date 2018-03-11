@@ -3,99 +3,124 @@
 ################
 
 resource "digitalocean_droplet" "ceph-admin" {
-  depends_on         = ["digitalocean_droplet.ceph"]
   image              = "${var.admin_image}"
   name               = "ceph-admin"
-  region             = "${var.do_region}"
+  region             = "${var.region}"
   size               = "${var.size}"
   backups            = "False"
   ipv6               = "False"
   private_networking = "True"
+  monitoring         = "False"
   ssh_keys           = ["${var.ssh_id}"]
 
-  # remote root connection key
+  tags = [
+    "${digitalocean_tag.ceph.id}",
+  ]
+
   connection {
+<<<<<<< HEAD
     type        = "ssh"
     user        = "root"
+=======
+    type = "ssh"
+    user = "root"
+>>>>>>> iss-switch
   }
 
-  # provision admin user and allow you to login in as said user
+  # create non-root admin user
   provisioner "remote-exec" {
-    inline = ["useradd -d /home/${var.admin_user} -m ${var.admin_user}",
-      "echo '${var.admin_user} ALL = (root) NOPASSWD:ALL' | tee /etc/sudoers.d/${var.admin_user}",
-      "chmod 0440 /etc/sudoers.d/${var.admin_user}",
-      "mkdir /home/${var.admin_user}/.ssh",
-      "cp /root/.ssh/authorized_keys /home/${var.admin_user}/.ssh/authorized_keys",
-      "chown -R ${var.admin_user}:${var.admin_user} /home/${var.admin_user}",
-      "chmod 0700 /home/${var.admin_user}/.ssh",
-      "chmod  600 /home/${var.admin_user}/.ssh/authorized_keys",
-    ]
-  }
-
-  provisioner "local-exec" {
-    command = "echo '\nHost ${self.name}\n    HostName ${self.ipv4_address}\n    User ${var.admin_user}' | tee -a ~/.ssh/config.d/ceph-digitalocean"
-  }
-
-  provisioner "local-exec" {
-    command = "scp -o StrictHostKeyChecking=no ${path.root}/hosts_file ${self.name}:/home/${var.admin_user}/hosts_file"
+    inline = ["${data.template_file.newuser.rendered}"]
   }
 }
 
-resource "null_resource" "admin-config" {
-  depends_on = ["digitalocean_droplet.ceph-admin"]
+resource "null_resource" "ceph-admin-config" {
+  # do not run this until all ceph workers are created
+  depends_on = ["null_resource.ceph-config"]
 
+  # all further connections use admin user
+  connection {
+    host = "${digitalocean_droplet.ceph-admin.ipv4_address}"
+    type = "ssh"
+    user = "${var.user}"
+  }
+
+  # make bash pretty
+  provisioner "file" {
+    content     = "${data.template_file.bashrc.rendered}"
+    destination = "/home/${var.user}/.bashrc"
+  }
+
+<<<<<<< HEAD
   # remote ceph-admin connection key
   connection {
     host        = "${digitalocean_droplet.ceph-admin.0.ipv4_address}"
     type        = "ssh"
     user        = "${var.admin_user}"
+=======
+  # make terminal usable
+  provisioner "file" {
+    content     = "${data.template_file.inputrc.rendered}"
+    destination = "/home/${var.user}/.inputrc"
+>>>>>>> iss-switch
   }
 
-  # Update your remote VM and install ceph
-  # Generate ssh key locally (make password-less & comment-less) &&
-  #     append to authorized_keys for copying out to worker nodes later
-  # Append ceph hosts to /etc/hosts
-  provisioner "remote-exec" {
-    inline = [
-      "wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -",
-      "echo deb https://download.ceph.com/debian/ $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/ceph.list",
-      "sudo apt-get -qq update",
-      "sudo apt-get -qq -y install ceph-deploy",
-      "sudo apt-get -qq -y install jq",
-      "ssh-keygen -t rsa -b 4096 -f /home/${var.admin_user}/.ssh/id_rsa -N '' -C '' ",
-      "cat /home/${var.admin_user}/.ssh/id_rsa.pub | tee -a /home/${var.admin_user}/.ssh/authorized_keys",
-      "sudo cat /home/${var.admin_user}/hosts_file | sudo tee -a /etc/hosts",
-    ]
-  }
-
-  # copy local ssh config file over to admin node
+  # copy local ssh config files over to admin node
+  # (repeat this for worker changes)
   provisioner "local-exec" {
-    command = "scp -o StrictHostKeyChecking=no ~/.ssh/config.d/ceph-digitalocean ceph-admin:~/.ssh/config"
+    command = "scp -o StrictHostKeyChecking=no ~/.ssh/config.d/ceph-*.ssh.config ${var.user}@${digitalocean_droplet.ceph-admin.ipv4_address}:~"
+  }
+
+  # Copy worker hosts file to admin node
+  # (repeat this step for worker changes)
+  provisioner "local-exec" {
+    command = "scp -o StrictHostKeyChecking=no ${path.root}/stuff/hosts_* ${var.user}@${digitalocean_droplet.ceph-admin.ipv4_address}:/home/${var.user}/"
+  }
+
+  # corral ssh config definitions, hosts defs for worker nodes
+  # create ssh pub/pri keypair for distribution to worker nodes
+  # (repeat this step for worker changes)
+  provisioner "remote-exec" {
+    inline = ["${data.template_file.ssh-remote.rendered}"]
   }
 
   # copy admin node authorized keys to worker nodes
   # !!!need to scale this!!!
+  # (repeat this for worker changes)
   provisioner "local-exec" {
-    command = "scp -3 -o StrictHostKeyChecking=no ceph-admin:~/.ssh/authorized_keys ceph-1:~/.ssh/authorized_keys"
+    command = "scp -3 -o StrictHostKeyChecking=no ${var.user}@${digitalocean_droplet.ceph-admin.ipv4_address}:~/.ssh/authorized_keys ${var.user}@${digitalocean_droplet.ceph.0.ipv4_address}:~/.ssh/authorized_keys"
   }
 
   provisioner "local-exec" {
-    command = "scp -3 -o StrictHostKeyChecking=no ceph-admin:~/.ssh/authorized_keys ceph-2:~/.ssh/authorized_keys"
+    command = "scp -3 -o StrictHostKeyChecking=no ${var.user}@${digitalocean_droplet.ceph-admin.ipv4_address}:~/.ssh/authorized_keys ${var.user}@${digitalocean_droplet.ceph.1.ipv4_address}:~/.ssh/authorized_keys"
   }
 
   provisioner "local-exec" {
-    command = "scp -3 -o StrictHostKeyChecking=no ceph-admin:~/.ssh/authorized_keys ceph-3:~/.ssh/authorized_keys"
+    command = "scp -3 -o StrictHostKeyChecking=no ${var.user}@${digitalocean_droplet.ceph-admin.ipv4_address}:~/.ssh/authorized_keys ${var.user}@${digitalocean_droplet.ceph.2.ipv4_address}:~/.ssh/authorized_keys"
   }
 
-  # add optional touch to add node keys to admin
+  # copy file from admin to each worker to establish connection precedent
+  # also requires scaling
+  # (repeat this for worker changes)
   provisioner "remote-exec" {
     inline = [
       "touch ~/touchpoint",
-      "scp -o StrictHostKeyChecking=no touchpoint ceph-1:~/touchpoint",
-      "scp -o StrictHostKeyChecking=no touchpoint ceph-2:~/touchpoint",
-      "scp -o StrictHostKeyChecking=no touchpoint ceph-3:~/touchpoint",
+      "scp -o StrictHostKeyChecking=no touchpoint ${var.user}@${digitalocean_droplet.ceph.0.ipv4_address}:~/touchpoint",
+      "scp -o StrictHostKeyChecking=no touchpoint ${var.user}@${digitalocean_droplet.ceph.1.ipv4_address}:~/touchpoint",
+      "scp -o StrictHostKeyChecking=no touchpoint ${var.user}@${digitalocean_droplet.ceph.2.ipv4_address}:~/touchpoint",
     ]
   }
+
+  # Spit out ssh config file to ~/.ssh/config.d/
+  # (repeat this only when admin node changes)
+  provisioner "local-exec" {
+    command = "echo 'Host ${digitalocean_droplet.ceph-admin.name}\n    HostName ${digitalocean_droplet.ceph-admin.ipv4_address}\n    User ${var.user}' | tee ~/.ssh/config.d/ceph-admin.ssh.config"
+  }
+
+  # Update your remote VM and install ceph
+  provisioner "remote-exec" {
+    inline = ["${data.template_file.ceph-install.rendered}"]
+  }
+
 }
 
 ##################
@@ -104,51 +129,83 @@ resource "null_resource" "admin-config" {
 
 resource "digitalocean_droplet" "ceph" {
   depends_on         = ["null_resource.pre-clean"]
-  image              = "${var.node_image}"
-  count              = "${var.instances}"
+  image              = "${var.image}"
+  count              = "${var.worker_qty}"
   name               = "${var.prefix}-${count.index+1}"
-  region             = "${var.do_region}"
+  region             = "${var.region}"
   size               = "${var.size}"
   volume_ids         = ["${element(digitalocean_volume.ceph-vol.*.id, count.index)}"]
   backups            = "False"
   ipv6               = "False"
   private_networking = "True"
+  monitoring         = "False"
   ssh_keys           = ["${var.ssh_id}"]
+
+  tags = [
+    "${digitalocean_tag.ceph.id}",
+    "${digitalocean_tag.ceph-mon.id}",
+    "${digitalocean_tag.ceph-osd.id}",
+  ]
 
   # remote connection key
   connection {
+<<<<<<< HEAD
     type        = "ssh"
     user        = "root"
+=======
+    type = "ssh"
+    user = "root"
+  }
+
+  # provision admin user and allow you to login in as said user
+  provisioner "remote-exec" {
+    inline = ["${data.template_file.newuser.rendered}"]
+  }
+}
+
+resource "null_resource" "ceph-config" {
+  count = "${var.worker_qty}"
+
+  # remote connection key
+  connection {
+    type = "ssh"
+    host = "${element(digitalocean_droplet.ceph.*.ipv4_address, count.index)}"
+    user = "${var.user}"
+>>>>>>> iss-switch
   }
 
   # Update your remote VM
-  # provision node user
   # setup ssh access for admin node
   provisioner "remote-exec" {
-    inline = ["apt-get -qq -y update",
-      "apt-get -qq -y install python",
-      "apt-get -qq -y install ntp",
-      "apt-get -qq -y install openssh-server",
-      "useradd -d /home/${var.node_user} -m ${var.node_user}",
-      "echo '${var.node_user} ALL = (root) NOPASSWD:ALL' | tee /etc/sudoers.d/${var.node_user}",
-      "chmod 0440 /etc/sudoers.d/${var.node_user}",
-      "mkdir /home/${var.node_user}/.ssh",
-      "cp /root/.ssh/authorized_keys /home/${var.node_user}/.ssh/authorized_keys",
-      "chown -R ${var.node_user}:${var.node_user} /home/${var.node_user}",
-      "chmod 0700 /home/${var.node_user}/.ssh",
-      "chmod  600 /home/${var.node_user}/.ssh/authorized_keys",
+    inline = [
+      "sudo apt-get -y update",
+      "sudo apt-get -y install python",
+      "sudo apt-get -y install ntp",
+      "sudo apt-get -y install openssh-server",
     ]
+  }
+
+  # make bash pretty
+  provisioner "file" {
+    content     = "${data.template_file.bashrc.rendered}"
+    destination = "/home/${var.user}/.bashrc"
+  }
+
+  # make terminal usable
+  provisioner "file" {
+    content     = "${data.template_file.inputrc.rendered}"
+    destination = "/home/${var.user}/.inputrc"
   }
 
   # generate local ssh `config` file to be copied to ceph-admin later
   provisioner "local-exec" {
-    command = "echo '\nHost ${self.name}\n    HostName ${self.ipv4_address}\n    User ${var.node_user}' | tee -a ~/.ssh/config.d/ceph-digitalocean"
+    command = "echo '\nHost ${element(digitalocean_droplet.ceph.*.name, count.index)}\n    HostName ${element(digitalocean_droplet.ceph.*.ipv4_address, count.index)}\n    User ${var.user}' | tee ~/.ssh/config.d/ceph-${count.index}.ssh.config"
   }
 
   # spit out `/etc/hosts` entries to be copied to ceph-admin later
   # !!!could be done through dns or with reverse proxy(?) instead!!!
   provisioner "local-exec" {
-    command = "echo '${self.ipv4_address} ${self.name} ${self.name}' | tee -a ${path.root}/hosts_file"
+    command = "echo '${element(digitalocean_droplet.ceph.*.ipv4_address, count.index)} ${element(digitalocean_droplet.ceph.*.name, count.index)} ${element(digitalocean_droplet.ceph.*.name, count.index)}' | tee ${path.root}/stuff/hosts_${element(digitalocean_droplet.ceph.*.name, count.index)}"
   }
 }
 
@@ -158,7 +215,11 @@ resource "digitalocean_droplet" "ceph" {
 
 resource "null_resource" "pre-clean" {
   provisioner "local-exec" {
+<<<<<<< HEAD
     command = "rm ~/.ssh/config.d/ceph-digitalocean || echo \"No ssh configs found\"; rm ${path.root}/hosts_file || echo \"No hosts file found\""
+=======
+    command = "rm ~/.ssh/config.d/ceph-*.ssh.config || echo \"No ceph ssh config files found\" ; rm ${path.root}/stuff/hosts_* || echo \"No hosts file found in module root\""
+>>>>>>> iss-switch
   }
 }
 
@@ -167,7 +228,7 @@ resource "null_resource" "pre-clean" {
 ################
 
 output "ceph_admin" {
-  value = "Your admin node is:\n${digitalocean_droplet.ceph-admin.0.name} (${digitalocean_droplet.ceph-admin.0.ipv4_address}) (${digitalocean_droplet.ceph-admin.0.ipv4_address_private})"
+  value = "${digitalocean_droplet.ceph-admin.0.name} (${digitalocean_droplet.ceph-admin.0.ipv4_address}) (${digitalocean_droplet.ceph-admin.0.ipv4_address_private})"
 }
 
 output "ceph_node_names" {
