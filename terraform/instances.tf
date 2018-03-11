@@ -130,6 +130,8 @@ resource "digitalocean_droplet" "ceph" {
 
   tags = [
     "${digitalocean_tag.ceph.id}",
+    "${digitalocean_tag.ceph-mon.id}",
+    "${digitalocean_tag.ceph-osd.id}",
   ]
 
   # remote connection key
@@ -204,7 +206,7 @@ resource "null_resource" "pre-clean" {
 ################
 
 output "ceph_admin" {
-  value = "Your admin node is:\n${digitalocean_droplet.ceph-admin.0.name} (${digitalocean_droplet.ceph-admin.0.ipv4_address}) (${digitalocean_droplet.ceph-admin.0.ipv4_address_private})"
+  value = "${digitalocean_droplet.ceph-admin.0.name} (${digitalocean_droplet.ceph-admin.0.ipv4_address}) (${digitalocean_droplet.ceph-admin.0.ipv4_address_private})"
 }
 
 output "ceph_node_names" {
