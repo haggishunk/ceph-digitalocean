@@ -4,15 +4,16 @@ resource "digitalocean_firewall" "ssh" {
   tags = ["${digitalocean_tag.ceph.name}"]
 
   # permit ssh connections from admin CIDR
-  # and any droplet with a ceph tag
+  # and master node
   inbound_rule = [
     {
       protocol   = "tcp"
       port_range = "22"
 
-      source_addresses = ["${var.admin_cidr}"]
-
-      source_tags = ["${digitalocean_tag.ceph.name}"]
+      source_addresses = [
+        "${var.admin_cidr}",
+        "${digitalocean_droplet.ceph-admin.ipv4_address}",
+      ]
     },
   ]
 }
@@ -23,15 +24,15 @@ resource "digitalocean_firewall" "ping" {
   tags = ["${digitalocean_tag.ceph.name}"]
 
   # permit pings from admin CIDR
-  # and any droplet with a ceph tag
+  # and master node
   inbound_rule = [
     {
       protocol   = "icmp"
       port_range = "1-65535"
 
-      source_addresses = ["${var.admin_cidr}"]
-
-      source_tags = ["${digitalocean_tag.ceph.name}"]
+      source_addresses = [
+        "${digitalocean_droplet.ceph-admin.ipv4_address}",
+      ]
     },
   ]
 }
@@ -40,7 +41,7 @@ resource "digitalocean_firewall" "rgw" {
   name = "ceph-rgw-thru-web"
 
   tags = ["${digitalocean_tag.ceph.name}"]
-  
+
   # permit inbound http port 80 connections from anywhere (users)
   inbound_rule = [
     {
@@ -54,19 +55,38 @@ resource "digitalocean_firewall" "rgw" {
 resource "digitalocean_firewall" "mon" {
   name = "ceph-allow-monitor"
 
-  tags = ["${digitalocean_tag.ceph.name}"]
+  tags = ["${digitalocean_tag.ceph-mon.name}"]
 
-  # permit monitor cross-talk between all ceph-tagged nodes
+  # permit monitor cross-talk between all ceph-mon-tagged nodes
   inbound_rule = [
     {
       protocol   = "tcp"
       port_range = "6789"
 
-      source_tags = ["${digitalocean_tag.ceph.name}"]
+      source_addresses = [
+        "${digitalocean_droplet.ceph.*.ipv4_address}",
+      ]
     },
   ]
 }
 
+resource "digitalocean_firewall" "osd" {
+  name = "ceph-allow-osd"
+
+  tags = ["${digitalocean_tag.ceph-osd.name}"]
+
+  # permit osd cross-talk between all ceph-osd-tagged nodes
+  inbound_rule = [
+    {
+      protocol   = "tcp"
+      port_range = "6800-7300"
+
+      source_addresses = [
+        "${digitalocean_droplet.ceph.*.ipv4_address}",
+      ]
+    },
+  ]
+}
 resource "digitalocean_firewall" "outbound" {
   name = "ceph-update"
 
