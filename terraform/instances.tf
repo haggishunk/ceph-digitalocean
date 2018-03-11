@@ -18,13 +18,8 @@ resource "digitalocean_droplet" "ceph-admin" {
   ]
 
   connection {
-<<<<<<< HEAD
-    type        = "ssh"
-    user        = "root"
-=======
     type = "ssh"
     user = "root"
->>>>>>> iss-switch
   }
 
   # create non-root admin user
@@ -50,18 +45,10 @@ resource "null_resource" "ceph-admin-config" {
     destination = "/home/${var.user}/.bashrc"
   }
 
-<<<<<<< HEAD
-  # remote ceph-admin connection key
-  connection {
-    host        = "${digitalocean_droplet.ceph-admin.0.ipv4_address}"
-    type        = "ssh"
-    user        = "${var.admin_user}"
-=======
   # make terminal usable
   provisioner "file" {
     content     = "${data.template_file.inputrc.rendered}"
     destination = "/home/${var.user}/.inputrc"
->>>>>>> iss-switch
   }
 
   # copy local ssh config files over to admin node
@@ -120,7 +107,6 @@ resource "null_resource" "ceph-admin-config" {
   provisioner "remote-exec" {
     inline = ["${data.template_file.ceph-install.rendered}"]
   }
-
 }
 
 ##################
@@ -149,10 +135,6 @@ resource "digitalocean_droplet" "ceph" {
 
   # remote connection key
   connection {
-<<<<<<< HEAD
-    type        = "ssh"
-    user        = "root"
-=======
     type = "ssh"
     user = "root"
   }
@@ -171,7 +153,6 @@ resource "null_resource" "ceph-config" {
     type = "ssh"
     host = "${element(digitalocean_droplet.ceph.*.ipv4_address, count.index)}"
     user = "${var.user}"
->>>>>>> iss-switch
   }
 
   # Update your remote VM
@@ -215,11 +196,11 @@ resource "null_resource" "ceph-config" {
 
 resource "null_resource" "pre-clean" {
   provisioner "local-exec" {
-<<<<<<< HEAD
-    command = "rm ~/.ssh/config.d/ceph-digitalocean || echo \"No ssh configs found\"; rm ${path.root}/hosts_file || echo \"No hosts file found\""
-=======
-    command = "rm ~/.ssh/config.d/ceph-*.ssh.config || echo \"No ceph ssh config files found\" ; rm ${path.root}/stuff/hosts_* || echo \"No hosts file found in module root\""
->>>>>>> iss-switch
+    command = <<EOF
+mkdir -p ${path.root}/stuff          || echo \"Stuff folder already exists\" ;
+rm ~/.ssh/config.d/ceph-*.ssh.config || echo \"No ceph ssh config files found\" ;
+rm ${path.root}/stuff/hosts_*        || echo \"No hosts file found in module root\"
+EOF
   }
 }
 
@@ -232,13 +213,13 @@ output "ceph_admin" {
 }
 
 output "ceph_node_names" {
-  value = "Your ceph node names are:\n${join(",\n", digitalocean_droplet.ceph.*.name)}"
+  value = "${digitalocean_droplet.ceph.*.name}"
 }
 
 output "ceph_nodes_pub" {
-  value = "\nYour ceph nodes' public IPs are:\n${join(",\n", digitalocean_droplet.ceph.*.ipv4_address)}"
+  value = "${digitalocean_droplet.ceph.*.ipv4_address}"
 }
 
 output "ceph_nodes_pri" {
-  value = "\nYour ceph nodes' private IPs are:\n${join(",\n", digitalocean_droplet.ceph.*.ipv4_address_private)}"
+  value = "${digitalocean_droplet.ceph.*.ipv4_address_private}"
 }
